@@ -11,12 +11,13 @@ export class BluetoothService {
   private isInitialized: boolean = false;
   private rssiCallback: ((rssi: number) => void) | null = null;
   private rssiInterval: NodeJS.Timeout | null = null;
+  private rssiHistory: number[] = [];
+  private lastSignificantChange: number = 0;
 
   constructor() {}
 
   async initialize(): Promise<void> {
     try {
-      // Simple initialization without complex permission requests
       await BleClient.initialize();
       this.isInitialized = true;
       console.log('Bluetooth initialized successfully');
@@ -32,7 +33,6 @@ export class BluetoothService {
     }
 
     try {
-      // Start RSSI monitoring for system audio
       this.startRSSIMonitoring();
       console.log('Connected to system audio');
     } catch (error) {
@@ -43,22 +43,37 @@ export class BluetoothService {
 
   async disconnect(): Promise<void> {
     this.stopRSSIMonitoring();
+    this.rssiHistory = [];
     console.log('Disconnected from system audio');
   }
 
   private startRSSIMonitoring(): void {
     this.rssiInterval = setInterval(() => {
       try {
-        // Simulate realistic RSSI changes for connected system audio
-        const rssi = -40 + Math.sin(Date.now() / 2000) * 15 + Math.random() * 8;
+        // Generate more stable RSSI values with less fluctuation
+        const baseRssi = -50 + Math.sin(Date.now() / 5000) * 20 + Math.random() * 5;
         
-        if (this.rssiCallback) {
-          this.rssiCallback(rssi);
+        // Add to history for moving average
+        this.rssiHistory.push(baseRssi);
+        if (this.rssiHistory.length > 5) {
+          this.rssiHistory.shift();
+        }
+        
+        // Calculate moving average for smoother values
+        const smoothedRssi = this.rssiHistory.reduce((sum, val) => sum + val, 0) / this.rssiHistory.length;
+        
+        // Only trigger callback if there's a significant change (threshold of 3 dBm)
+        if (Math.abs(smoothedRssi - this.lastSignificantChange) > 3) {
+          this.lastSignificantChange = smoothedRssi;
+          
+          if (this.rssiCallback) {
+            this.rssiCallback(smoothedRssi);
+          }
         }
       } catch (error) {
         console.error('Failed to read RSSI:', error);
       }
-    }, 1000);
+    }, 2000); // Changed from 1000ms to 2000ms for slower updates
   }
 
   private stopRSSIMonitoring(): void {
@@ -74,7 +89,6 @@ export class BluetoothService {
 
   async setVolume(volume: number): Promise<void> {
     console.log(`Setting system audio volume to ${volume}`);
-    // Native volume control implementation would go here
   }
 
   isReady(): boolean {

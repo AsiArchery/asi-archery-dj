@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -38,12 +37,12 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   return (
     <Card className="shadow-lg border-2 border-purple-200">
       <CardHeader>
-        <CardTitle>Control Settings</CardTitle>
+        <CardTitle className="text-left">Control Settings</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Auto Mode Toggle */}
         <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 text-left">
             {isAutoMode ? (
               <Play className="w-5 h-5 text-green-600" />
             ) : (
@@ -68,7 +67,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         <Separator />
 
         {/* Target Distance */}
-        <div className="space-y-2">
+        <div className="space-y-2 text-left">
           <Label>Target Distance (meters)</Label>
           <Select value={targetDistance} onValueChange={setTargetDistance}>
             <SelectTrigger>
@@ -87,7 +86,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
 
         {/* Volume Controls with Colorful Sliders */}
         <div className="space-y-6">
-          <div className="space-y-2">
+          <div className="space-y-2 text-left">
             <Label>Initial Volume: {initialVolume[0]}</Label>
             <VolumeSlider
               value={initialVolume}
@@ -98,7 +97,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 text-left">
             <Label>Minimum Volume: {minVolume[0]}</Label>
             <VolumeSlider
               value={minVolume}
@@ -109,7 +108,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 text-left">
             <Label>Maximum Volume: {maxVolume[0]}</Label>
             <VolumeSlider
               value={maxVolume}

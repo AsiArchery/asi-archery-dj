@@ -22,7 +22,7 @@ export const SignalDisplay: React.FC<SignalDisplayProps> = ({
     <div className="grid md:grid-cols-2 gap-6">
       <Card className="shadow-lg border-2 border-green-200">
         <CardHeader>
-          <CardTitle className="text-green-700">Signal Strength (RSSI)</CardTitle>
+          <CardTitle className="text-green-700 text-left">Bluetooth Level</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-center">
@@ -30,7 +30,7 @@ export const SignalDisplay: React.FC<SignalDisplayProps> = ({
               {Math.round(getSignalStrength(rssi))}%
             </div>
             <div className="text-sm text-gray-600">
-              RSSI: {rssi} dBm
+              RSSI: {Math.round(rssi)} dBm
             </div>
             <div className="text-xs text-blue-600 mt-1">
               {isConnected ? "Live Data" : "Simulated"}
@@ -50,7 +50,7 @@ export const SignalDisplay: React.FC<SignalDisplayProps> = ({
 
       <Card className="shadow-lg border-2 border-amber-200">
         <CardHeader>
-          <CardTitle className="text-amber-700">Volume Level</CardTitle>
+          <CardTitle className="text-amber-700 text-left">Volume Level</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-center">

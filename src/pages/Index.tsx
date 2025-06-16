@@ -27,9 +27,13 @@ const Index = () => {
     setVolume
   } = useBluetoothNative();
 
+  // Fixed volume calculation: Lower RSSI (farther) = Higher volume
   const calculateVolume = (rssiValue: number) => {
-    const normalized = Math.max(0, Math.min(1, (rssiValue + 100) / 70));
-    const volume = minVolume[0] + normalized * (maxVolume[0] - minVolume[0]);
+    // Convert RSSI to distance-based volume
+    // RSSI range: -80 (far) to -20 (close)
+    // Volume should be: far = high volume, close = low volume
+    const normalizedDistance = Math.max(0, Math.min(1, (-rssiValue - 20) / 60));
+    const volume = minVolume[0] + normalizedDistance * (maxVolume[0] - minVolume[0]);
     return Math.round(volume);
   };
 
@@ -39,6 +43,7 @@ const Index = () => {
       if (newVolume !== currentVolume) {
         setCurrentVolume(newVolume);
         setVolume(newVolume);
+        console.log(`RSSI: ${Math.round(rssi)}, Volume: ${newVolume}`);
       }
     }
   }, [rssi, isConnected, isAutoMode, minVolume, maxVolume, currentVolume]);

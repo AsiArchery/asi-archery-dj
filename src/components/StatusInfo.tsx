@@ -27,29 +27,29 @@ export const StatusInfo: React.FC<StatusInfoProps> = ({
   return (
     <Card className="shadow-lg border-2 border-gray-200">
       <CardHeader>
-        <CardTitle>Additional Information</CardTitle>
+        <CardTitle className="text-left">Additional Information</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
+          <div className="text-left">
             <span className="text-gray-600">Target Distance:</span>
             <span className="font-medium ml-2">{targetDistance}m</span>
           </div>
-          <div>
+          <div className="text-left">
             <span className="text-gray-600">Calculated Volume:</span>
             <span className="font-medium ml-2">{calculateVolume(rssi)}</span>
           </div>
-          <div>
+          <div className="text-left">
             <span className="text-gray-600">Volume Range:</span>
             <span className="font-medium ml-2">{minVolume[0]}-{maxVolume[0]}</span>
           </div>
-          <div>
+          <div className="text-left">
             <span className="text-gray-600">Mode:</span>
             <span className="font-medium ml-2">
               {isAutoMode ? 'Automatic' : 'Manual'}
             </span>
           </div>
-          <div className="col-span-2">
+          <div className="col-span-2 text-left">
             <span className="text-gray-600">Connection Status:</span>
             <span className={`font-medium ml-2 ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
               {isConnected ? `Connected to ${connectedDevice?.name}` : 'Not Connected'}
