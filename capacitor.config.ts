@@ -12,10 +12,10 @@ const config: CapacitorConfig = {
   plugins: {
     BluetoothLe: {
       displayStrings: {
-        scanning: "סורק התקני Bluetooth...",
-        cancel: "ביטול",
-        availableDevices: "התקנים זמינים",
-        noDeviceFound: "לא נמצאו התקנים"
+        scanning: "Scanning for Bluetooth devices...",
+        cancel: "Cancel",
+        availableDevices: "Available Devices",
+        noDeviceFound: "No devices found"
       }
     }
   }

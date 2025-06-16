@@ -6,8 +6,6 @@ import { useToast } from './use-toast';
 export const useBluetoothNative = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
-  const [discoveredDevices, setDiscoveredDevices] = useState<BluetoothDeviceInfo[]>([]);
   const [connectedDevice, setConnectedDevice] = useState<BluetoothDeviceInfo | null>(null);
   const [rssi, setRssi] = useState(-60);
   const { toast } = useToast();
@@ -25,7 +23,6 @@ export const useBluetoothNative = () => {
   const initializeBluetooth = async () => {
     try {
       await bluetoothService.initialize();
-      await bluetoothService.requestPermissions();
       setIsInitialized(true);
       
       // Set up RSSI callback
@@ -34,20 +31,20 @@ export const useBluetoothNative = () => {
       });
       
       toast({
-        title: "Native Bluetooth Ready!",
-        description: "System is ready to scan and connect to Bluetooth devices",
+        title: "Bluetooth Ready!",
+        description: "System is ready to connect to your Bluetooth speaker",
       });
     } catch (error) {
       console.error('Bluetooth initialization failed:', error);
       toast({
         title: "Initialization Error",
-        description: "Failed to initialize native Bluetooth",
+        description: "Failed to initialize Bluetooth. Please ensure Bluetooth is enabled.",
         variant: "destructive",
       });
     }
   };
 
-  const startScan = async () => {
+  const connectToSystemAudio = async () => {
     if (!isInitialized) {
       toast({
         title: "System Not Ready",
@@ -58,53 +55,23 @@ export const useBluetoothNative = () => {
     }
 
     try {
-      setIsScanning(true);
-      setDiscoveredDevices([]);
-      
-      await bluetoothService.startScan((devices: BluetoothDeviceInfo[]) => {
-        setDiscoveredDevices(devices);
-      });
-      
-      toast({
-        title: "Scan Started",
-        description: "Searching for Bluetooth devices...",
-      });
-      
-      // Auto stop scanning after 10 seconds
-      setTimeout(() => {
-        setIsScanning(false);
-      }, 10000);
-    } catch (error) {
-      console.error('Scan failed:', error);
-      setIsScanning(false);
-      toast({
-        title: "Scan Error",
-        description: "Failed to scan for devices",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const connectToDevice = async (deviceId: string, deviceName: string) => {
-    try {
-      const device = await bluetoothService.connectToDevice(deviceId);
+      await bluetoothService.connectToSystemAudio();
       setConnectedDevice({
-        deviceId,
-        name: deviceName,
-        rssi: device.rssi
+        deviceId: 'system-audio',
+        name: 'System Audio Device',
+        rssi: -50
       });
       setIsConnected(true);
-      setDiscoveredDevices([]);
       
       toast({
         title: "Connected Successfully!",
-        description: `Connected to ${deviceName}`,
+        description: "Connected to your Bluetooth speaker",
       });
     } catch (error) {
       console.error('Connection failed:', error);
       toast({
         title: "Connection Error",
-        description: "Failed to connect to device",
+        description: "Please connect a Bluetooth speaker via system settings first",
         variant: "destructive",
       });
     }
@@ -119,7 +86,7 @@ export const useBluetoothNative = () => {
       
       toast({
         title: "Disconnected",
-        description: "Device disconnected successfully",
+        description: "Disconnected from audio device",
       });
     } catch (error) {
       console.error('Disconnect failed:', error);
@@ -142,12 +109,9 @@ export const useBluetoothNative = () => {
   return {
     isInitialized,
     isConnected,
-    isScanning,
-    discoveredDevices,
     connectedDevice,
     rssi,
-    startScan,
-    connectToDevice,
+    connectToSystemAudio,
     disconnect,
     setVolume
   };

@@ -20,12 +20,9 @@ const Index = () => {
   const {
     isInitialized,
     isConnected,
-    isScanning,
-    discoveredDevices,
     connectedDevice,
     rssi,
-    startScan,
-    connectToDevice,
+    connectToSystemAudio,
     disconnect,
     setVolume
   } = useBluetoothNative();
@@ -68,11 +65,8 @@ const Index = () => {
         <BluetoothConnection
           isInitialized={isInitialized}
           isConnected={isConnected}
-          isScanning={isScanning}
-          discoveredDevices={discoveredDevices}
           connectedDevice={connectedDevice}
-          startScan={startScan}
-          connectToDevice={connectToDevice}
+          connectToSystemAudio={connectToSystemAudio}
           disconnect={disconnect}
         />
 
