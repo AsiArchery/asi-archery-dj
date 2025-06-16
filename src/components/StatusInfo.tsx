@@ -27,32 +27,32 @@ export const StatusInfo: React.FC<StatusInfoProps> = ({
   return (
     <Card className="shadow-lg border-2 border-gray-200">
       <CardHeader>
-        <CardTitle>מידע נוסף</CardTitle>
+        <CardTitle>Additional Information</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <span className="text-gray-600">מרחק מוגדר:</span>
-            <span className="font-medium mr-2">{targetDistance}מ'</span>
+            <span className="text-gray-600">Target Distance:</span>
+            <span className="font-medium ml-2">{targetDistance}m</span>
           </div>
           <div>
-            <span className="text-gray-600">ווליום מחושב:</span>
-            <span className="font-medium mr-2">{calculateVolume(rssi)}</span>
+            <span className="text-gray-600">Calculated Volume:</span>
+            <span className="font-medium ml-2">{calculateVolume(rssi)}</span>
           </div>
           <div>
-            <span className="text-gray-600">טווח ווליום:</span>
-            <span className="font-medium mr-2">{minVolume[0]}-{maxVolume[0]}</span>
+            <span className="text-gray-600">Volume Range:</span>
+            <span className="font-medium ml-2">{minVolume[0]}-{maxVolume[0]}</span>
           </div>
           <div>
-            <span className="text-gray-600">מצב:</span>
-            <span className="font-medium mr-2">
-              {isAutoMode ? 'אוטומטי' : 'ידני'}
+            <span className="text-gray-600">Mode:</span>
+            <span className="font-medium ml-2">
+              {isAutoMode ? 'Automatic' : 'Manual'}
             </span>
           </div>
           <div className="col-span-2">
-            <span className="text-gray-600">סטטוס חיבור:</span>
-            <span className={`font-medium mr-2 ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
-              {isConnected ? `מחובר ל-${connectedDevice?.name}` : 'לא מחובר'}
+            <span className="text-gray-600">Connection Status:</span>
+            <span className={`font-medium ml-2 ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
+              {isConnected ? `Connected to ${connectedDevice?.name}` : 'Not Connected'}
             </span>
           </div>
         </div>

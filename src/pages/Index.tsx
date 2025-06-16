@@ -24,7 +24,6 @@ const Index = () => {
     discoveredDevices,
     connectedDevice,
     rssi,
-    isNative,
     startScan,
     connectToDevice,
     disconnect,
@@ -51,8 +50,8 @@ const Index = () => {
     setIsAutoMode(!isAutoMode);
     if (!isAutoMode) {
       toast({
-        title: "מצב אוטומטי הופעל",
-        description: "הווליום יכוונן אוטומטית לפי המרחק",
+        title: "Auto Mode Enabled",
+        description: "Volume will adjust automatically based on distance",
       });
     }
   };
@@ -64,7 +63,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-100 p-4">
       <div className="max-w-4xl mx-auto space-y-6">
-        <Header isInitialized={isInitialized} isNative={isNative} />
+        <Header isInitialized={isInitialized} />
 
         <BluetoothConnection
           isInitialized={isInitialized}

@@ -10,7 +10,6 @@ export const useBluetoothNative = () => {
   const [discoveredDevices, setDiscoveredDevices] = useState<BluetoothDeviceInfo[]>([]);
   const [connectedDevice, setConnectedDevice] = useState<BluetoothDeviceInfo | null>(null);
   const [rssi, setRssi] = useState(-60);
-  const [isNative, setIsNative] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -28,27 +27,21 @@ export const useBluetoothNative = () => {
       await bluetoothService.initialize();
       await bluetoothService.requestPermissions();
       setIsInitialized(true);
-      setIsNative(bluetoothService.isNative());
       
       // Set up RSSI callback
       bluetoothService.setRSSICallback((newRssi: number) => {
         setRssi(newRssi);
       });
       
-      const mode = bluetoothService.isNative() ? "נטיבי" : "דמו";
       toast({
-        title: `מצב ${mode} מוכן!`,
-        description: bluetoothService.isNative() 
-          ? "המערכת מוכנה לסריקה וחיבור Bluetooth אמיתי"
-          : "המערכת פועלת במצב דמו עם נתונים מדומים",
+        title: "Native Bluetooth Ready!",
+        description: "System is ready to scan and connect to Bluetooth devices",
       });
     } catch (error) {
       console.error('Bluetooth initialization failed:', error);
       toast({
-        title: "שגיאת אתחול",
-        description: bluetoothService.isNative() 
-          ? "לא הצלחנו להפעיל את ה-Bluetooth הנטיבי"
-          : "לא הצלחנו להפעיל את מצב הדמו",
+        title: "Initialization Error",
+        description: "Failed to initialize native Bluetooth",
         variant: "destructive",
       });
     }
@@ -57,8 +50,8 @@ export const useBluetoothNative = () => {
   const startScan = async () => {
     if (!isInitialized) {
       toast({
-        title: "המערכת לא מוכנה",
-        description: "אנא המתן להפעלת המערכת",
+        title: "System Not Ready",
+        description: "Please wait for system initialization",
         variant: "destructive",
       });
       return;
@@ -72,10 +65,9 @@ export const useBluetoothNative = () => {
         setDiscoveredDevices(devices);
       });
       
-      const mode = bluetoothService.isNative() ? "Bluetooth" : "דמו";
       toast({
-        title: "סריקה החלה",
-        description: `מחפש התקני ${mode}...`,
+        title: "Scan Started",
+        description: "Searching for Bluetooth devices...",
       });
       
       // Auto stop scanning after 10 seconds
@@ -86,8 +78,8 @@ export const useBluetoothNative = () => {
       console.error('Scan failed:', error);
       setIsScanning(false);
       toast({
-        title: "שגיאת סריקה",
-        description: "לא הצלחנו לסרוק התקנים",
+        title: "Scan Error",
+        description: "Failed to scan for devices",
         variant: "destructive",
       });
     }
@@ -104,16 +96,15 @@ export const useBluetoothNative = () => {
       setIsConnected(true);
       setDiscoveredDevices([]);
       
-      const mode = bluetoothService.isNative() ? "" : " (דמו)";
       toast({
-        title: "התחבר בהצלחה!",
-        description: `מחובר ל-${deviceName}${mode}`,
+        title: "Connected Successfully!",
+        description: `Connected to ${deviceName}`,
       });
     } catch (error) {
       console.error('Connection failed:', error);
       toast({
-        title: "שגיאת חיבור",
-        description: "לא הצלחנו להתחבר להתקן",
+        title: "Connection Error",
+        description: "Failed to connect to device",
         variant: "destructive",
       });
     }
@@ -127,14 +118,14 @@ export const useBluetoothNative = () => {
       setRssi(-60);
       
       toast({
-        title: "החיבור נותק",
-        description: "ההתקן נותק בהצלחה",
+        title: "Disconnected",
+        description: "Device disconnected successfully",
       });
     } catch (error) {
       console.error('Disconnect failed:', error);
       toast({
-        title: "שגיאת ניתוק",
-        description: "לא הצלחנו לנתק את ההתקן",
+        title: "Disconnect Error",
+        description: "Failed to disconnect device",
         variant: "destructive",
       });
     }
@@ -155,7 +146,6 @@ export const useBluetoothNative = () => {
     discoveredDevices,
     connectedDevice,
     rssi,
-    isNative,
     startScan,
     connectToDevice,
     disconnect,

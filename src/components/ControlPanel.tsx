@@ -38,7 +38,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   return (
     <Card className="shadow-lg border-2 border-purple-200">
       <CardHeader>
-        <CardTitle>הגדרות בקרה</CardTitle>
+        <CardTitle>Control Settings</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Auto Mode Toggle */}
@@ -51,10 +51,10 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             )}
             <div>
               <Label className="text-base font-medium">
-                בקרה אוטומטית
+                Automatic Control
               </Label>
               <p className="text-sm text-gray-600">
-                {isAutoMode ? 'מופעל - הווליום מתכוונן אוטומטית' : 'כבוי - בקרה ידנית'}
+                {isAutoMode ? 'Enabled - Volume adjusts automatically' : 'Disabled - Manual control'}
               </p>
             </div>
           </div>
@@ -69,16 +69,16 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
 
         {/* Target Distance */}
         <div className="space-y-2">
-          <Label>מרחק למטרה (מטר)</Label>
+          <Label>Target Distance (meters)</Label>
           <Select value={targetDistance} onValueChange={setTargetDistance}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="18">18 מטר</SelectItem>
-              <SelectItem value="50">50 מטר</SelectItem>
-              <SelectItem value="60">60 מטר</SelectItem>
-              <SelectItem value="70">70 מטר</SelectItem>
+              <SelectItem value="18">18 meters</SelectItem>
+              <SelectItem value="50">50 meters</SelectItem>
+              <SelectItem value="60">60 meters</SelectItem>
+              <SelectItem value="70">70 meters</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -88,7 +88,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         {/* Volume Controls with Colorful Sliders */}
         <div className="space-y-6">
           <div className="space-y-2">
-            <Label>ווליום התחלתי: {initialVolume[0]}</Label>
+            <Label>Initial Volume: {initialVolume[0]}</Label>
             <VolumeSlider
               value={initialVolume}
               onValueChange={setInitialVolume}
@@ -99,7 +99,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label>ווליום מינימום: {minVolume[0]}</Label>
+            <Label>Minimum Volume: {minVolume[0]}</Label>
             <VolumeSlider
               value={minVolume}
               onValueChange={setMinVolume}
@@ -110,7 +110,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label>ווליום מקסימום: {maxVolume[0]}</Label>
+            <Label>Maximum Volume: {maxVolume[0]}</Label>
             <VolumeSlider
               value={maxVolume}
               onValueChange={setMaxVolume}

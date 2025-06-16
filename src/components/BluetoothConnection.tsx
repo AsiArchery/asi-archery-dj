@@ -31,7 +31,7 @@ export const BluetoothConnection: React.FC<BluetoothConnectionProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bluetooth className="w-5 h-5 text-purple-600" />
-          חיבור Bluetooth נטיבי
+          Native Bluetooth Connection
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -39,9 +39,9 @@ export const BluetoothConnection: React.FC<BluetoothConnectionProps> = ({
           <>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">סטטוס</p>
+                <p className="text-sm text-gray-600">Status</p>
                 <p className="font-medium">
-                  {isScanning ? 'סורק...' : 'לא מחובר'}
+                  {isScanning ? 'Scanning...' : 'Not Connected'}
                 </p>
               </div>
               <Button 
@@ -50,14 +50,14 @@ export const BluetoothConnection: React.FC<BluetoothConnectionProps> = ({
                 className="min-w-[120px]"
               >
                 <Scan className="w-4 h-4 mr-2" />
-                {isScanning ? 'סורק...' : 'סרוק התקנים'}
+                {isScanning ? 'Scanning...' : 'Scan Devices'}
               </Button>
             </div>
 
             {/* Discovered Devices */}
             {discoveredDevices.length > 0 && (
               <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700">התקנים שנמצאו:</p>
+                <p className="text-sm font-medium text-gray-700">Discovered Devices:</p>
                 <div className="max-h-40 overflow-y-auto space-y-2">
                   {discoveredDevices.map((device: BluetoothDeviceInfo) => (
                     <div key={device.deviceId} className="flex items-center justify-between p-2 bg-gray-50 rounded">
@@ -69,7 +69,7 @@ export const BluetoothConnection: React.FC<BluetoothConnectionProps> = ({
                         size="sm"
                         onClick={() => connectToDevice(device.deviceId, device.name)}
                       >
-                        התחבר
+                        Connect
                       </Button>
                     </div>
                   ))}
@@ -82,7 +82,7 @@ export const BluetoothConnection: React.FC<BluetoothConnectionProps> = ({
         {isConnected && connectedDevice && (
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">מחובר ל</p>
+              <p className="text-sm text-gray-600">Connected to</p>
               <p className="font-medium">{connectedDevice.name}</p>
             </div>
             <Button 
@@ -90,7 +90,7 @@ export const BluetoothConnection: React.FC<BluetoothConnectionProps> = ({
               variant="destructive"
               className="min-w-[120px]"
             >
-              נתק
+              Disconnect
             </Button>
           </div>
         )}

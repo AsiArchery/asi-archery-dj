@@ -32,21 +32,22 @@ export const VolumeSlider: React.FC<VolumeSliderProps> = ({
       step={step}
     >
       <SliderPrimitive.Track className="relative h-3 w-full grow overflow-hidden rounded-full bg-gray-200">
-        {/* Colorful gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 opacity-30" />
-        
-        {/* Active range with gradient */}
+        {/* Active range with gradient that shows progressively */}
         <SliderPrimitive.Range 
-          className="absolute h-full bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 transition-all duration-200"
+          className="absolute h-full transition-all duration-200"
+          style={{
+            background: `linear-gradient(90deg, #10b981 0%, ${percentage > 50 ? '#eab308' : '#10b981'} 50%, ${percentage > 75 ? '#ef4444' : percentage > 50 ? '#eab308' : '#10b981'} 100%)`,
+            backgroundSize: '100% 100%'
+          }}
         />
       </SliderPrimitive.Track>
       
       <SliderPrimitive.Thumb 
-        className="block h-6 w-6 rounded-full border-2 border-white bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 shadow-lg ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+        className="block h-6 w-6 rounded-full border-2 border-white shadow-lg ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
         style={{
-          background: `linear-gradient(90deg, #10b981 0%, #eab308 50%, #ef4444 100%)`,
-          backgroundPosition: `${percentage}% center`,
-          backgroundSize: '300% 100%'
+          backgroundColor: percentage <= 25 ? '#10b981' : 
+                          percentage <= 50 ? '#22c55e' :
+                          percentage <= 75 ? '#eab308' : '#ef4444'
         }}
       />
     </SliderPrimitive.Root>

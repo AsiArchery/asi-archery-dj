@@ -22,7 +22,7 @@ export const SignalDisplay: React.FC<SignalDisplayProps> = ({
     <div className="grid md:grid-cols-2 gap-6">
       <Card className="shadow-lg border-2 border-green-200">
         <CardHeader>
-          <CardTitle className="text-green-700">עוצמת קליטה (RSSI)</CardTitle>
+          <CardTitle className="text-green-700">Signal Strength (RSSI)</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-center">
@@ -33,7 +33,7 @@ export const SignalDisplay: React.FC<SignalDisplayProps> = ({
               RSSI: {rssi} dBm
             </div>
             <div className="text-xs text-blue-600 mt-1">
-              {isConnected ? "נתונים אמיתיים" : "מצב דמו"}
+              {isConnected ? "Live Data" : "Simulated"}
             </div>
           </div>
           <ColorfulProgressBar 
@@ -42,15 +42,15 @@ export const SignalDisplay: React.FC<SignalDisplayProps> = ({
             className="h-6"
           />
           <div className="flex justify-between text-xs text-gray-500">
-            <span>רחוק</span>
-            <span>קרוב</span>
+            <span>Far</span>
+            <span>Close</span>
           </div>
         </CardContent>
       </Card>
 
       <Card className="shadow-lg border-2 border-amber-200">
         <CardHeader>
-          <CardTitle className="text-amber-700">עוצמת ווליום</CardTitle>
+          <CardTitle className="text-amber-700">Volume Level</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-center">
@@ -58,10 +58,10 @@ export const SignalDisplay: React.FC<SignalDisplayProps> = ({
               {currentVolume}
             </div>
             <div className="text-sm text-gray-600">
-              מתוך {maxVolume}
+              out of {maxVolume}
             </div>
             <div className="text-xs text-blue-600 mt-1">
-              {isConnected ? "נשלח לרמקול" : "מחושב"}
+              {isConnected ? "Sent to Speaker" : "Calculated"}
             </div>
           </div>
           <ColorfulProgressBar 
@@ -70,8 +70,8 @@ export const SignalDisplay: React.FC<SignalDisplayProps> = ({
             className="h-6"
           />
           <div className="flex justify-between text-xs text-gray-500">
-            <span>שקט</span>
-            <span>רם</span>
+            <span>Quiet</span>
+            <span>Loud</span>
           </div>
         </CardContent>
       </Card>
