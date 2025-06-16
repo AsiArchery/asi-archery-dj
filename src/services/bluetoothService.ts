@@ -25,7 +25,17 @@ export class BluetoothService {
 
   async requestPermissions(): Promise<void> {
     try {
-      await BleClient.requestLEScan();
+      // Request permissions with proper options
+      await BleClient.requestLEScan(
+        {
+          services: []
+        },
+        () => {
+          // Empty callback for permission request
+        }
+      );
+      // Stop the scan immediately as this was just for permissions
+      await BleClient.stopLEScan();
       console.log('Bluetooth permissions granted');
     } catch (error) {
       console.error('Failed to get Bluetooth permissions:', error);
