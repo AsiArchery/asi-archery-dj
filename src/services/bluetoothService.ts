@@ -1,3 +1,4 @@
+
 import { BleClient } from '@capacitor-community/bluetooth-le';
 import { permissionsService } from './permissionsService';
 
@@ -31,10 +32,10 @@ export class BluetoothService {
       console.error('Failed to initialize Bluetooth:', error);
       
       if (error instanceof Error && error.message === 'PERMISSIONS_REQUIRED') {
-        throw new Error('נדרשות הרשאות בלוטות'. אנא אשר את ההרשאות בהגדרות המכשיר.');
+        throw new Error('נדרשות הרשאות בלוטות. אנא אשר את ההרשאות בהגדרות המכשיר.');
       }
       
-      throw new Error('אתחול בלוטות' נכשל. אנא ודא שהבלוטות' מופעל במכשיר.');
+      throw new Error('אתחול בלוטות נכשל. אנא ודא שהבלוטות מופעל במכשיר.');
     }
   }
 
@@ -57,7 +58,7 @@ export class BluetoothService {
       console.log('Connected to system audio');
     } catch (error) {
       console.error('Failed to connect to system audio:', error);
-      throw new Error('חיבור לשמע המערכת נכשל. אנא ודא שרמקול בלוטות' מחובר דרך הגדרות המערכת.');
+      throw new Error('חיבור לשמע המערכת נכשל. אנא ודא שרמקול בלוטות מחובר דרך הגדרות המערכת.');
     }
   }
 
