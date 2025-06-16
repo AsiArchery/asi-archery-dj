@@ -4,9 +4,10 @@ import { Speaker, Smartphone } from 'lucide-react';
 
 interface HeaderProps {
   isInitialized: boolean;
+  isNative: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({ isInitialized }) => {
+export const Header: React.FC<HeaderProps> = ({ isInitialized, isNative }) => {
   return (
     <div className="text-center space-y-2">
       <div className="flex items-center justify-center gap-3 mb-4">
@@ -17,8 +18,14 @@ export const Header: React.FC<HeaderProps> = ({ isInitialized }) => {
         <Smartphone className="w-6 h-6 text-purple-600" />
       </div>
       <p className="text-gray-600">שליטה אוטומטית על עוצמת הקול לפי המרחק מהמטרה</p>
-      <div className="text-sm text-green-600 font-medium">
-        {isInitialized ? "✓ מצב נטיבי - Bluetooth אמיתי" : "מפעיל מצב נטיבי..."}
+      <div className="text-sm font-medium">
+        {isInitialized ? (
+          <span className={isNative ? "text-green-600" : "text-blue-600"}>
+            {isNative ? "✓ מצב נטיבי - Bluetooth אמיתי" : "✓ מצב דמו - נתונים מדומים"}
+          </span>
+        ) : (
+          <span className="text-amber-600">מפעיל מערכת...</span>
+        )}
       </div>
     </div>
   );

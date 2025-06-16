@@ -1,5 +1,6 @@
 
 import { BleClient, BleDevice, ScanResult } from '@capacitor-community/bluetooth-le';
+import { Capacitor } from '@capacitor/core';
 
 export interface BluetoothDeviceInfo {
   deviceId: string;
@@ -12,45 +13,72 @@ export class BluetoothService {
   private scanningCallback: ((devices: BluetoothDeviceInfo[]) => void) | null = null;
   private rssiCallback: ((rssi: number) => void) | null = null;
   private rssiInterval: NodeJS.Timeout | null = null;
+  private isNativeEnvironment: boolean;
+  private mockDevices: BluetoothDeviceInfo[] = [
+    { deviceId: 'mock-speaker-1', name: 'רמקול בלוטוט', rssi: -45 },
+    { deviceId: 'mock-speaker-2', name: 'JBL Charge 5', rssi: -60 },
+    { deviceId: 'mock-speaker-3', name: 'Sony SRS-XB23', rssi: -55 }
+  ];
+
+  constructor() {
+    this.isNativeEnvironment = Capacitor.isNativePlatform();
+  }
 
   async initialize(): Promise<void> {
-    try {
-      await BleClient.initialize();
-      console.log('Bluetooth initialized successfully');
-    } catch (error) {
-      console.error('Failed to initialize Bluetooth:', error);
-      throw error;
+    if (this.isNativeEnvironment) {
+      try {
+        await BleClient.initialize();
+        console.log('Native Bluetooth initialized successfully');
+      } catch (error) {
+        console.error('Failed to initialize native Bluetooth:', error);
+        throw error;
+      }
+    } else {
+      console.log('Running in browser - using demo mode');
+      // Simulate initialization delay
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
   }
 
   async requestPermissions(): Promise<void> {
-    try {
-      // Request permissions with proper options
-      await BleClient.requestLEScan(
-        {
-          services: []
-        },
-        () => {
-          // Empty callback for permission request
-        }
-      );
-      // Stop the scan immediately as this was just for permissions
-      await BleClient.stopLEScan();
-      console.log('Bluetooth permissions granted');
-    } catch (error) {
-      console.error('Failed to get Bluetooth permissions:', error);
-      throw error;
+    if (this.isNativeEnvironment) {
+      try {
+        await BleClient.requestLEScan(
+          {
+            services: []
+          },
+          () => {
+            // Empty callback for permission request
+          }
+        );
+        await BleClient.stopLEScan();
+        console.log('Native Bluetooth permissions granted');
+      } catch (error) {
+        console.error('Failed to get native Bluetooth permissions:', error);
+        throw error;
+      }
+    } else {
+      // Browser demo mode - no permissions needed
+      console.log('Browser demo mode - no permissions required');
     }
   }
 
   async startScan(callback: (devices: BluetoothDeviceInfo[]) => void): Promise<void> {
     this.scanningCallback = callback;
+
+    if (this.isNativeEnvironment) {
+      await this.startNativeScan(callback);
+    } else {
+      await this.startDemoScan(callback);
+    }
+  }
+
+  private async startNativeScan(callback: (devices: BluetoothDeviceInfo[]) => void): Promise<void> {
     const discoveredDevices: Map<string, BluetoothDeviceInfo> = new Map();
 
     try {
       await BleClient.requestLEScan(
         {
-          // Scan for audio devices (optional filter)
           services: []
         },
         (result: ScanResult) => {
@@ -65,69 +93,120 @@ export class BluetoothService {
         }
       );
 
-      // Stop scanning after 10 seconds
       setTimeout(async () => {
         await this.stopScan();
       }, 10000);
     } catch (error) {
-      console.error('Failed to start scan:', error);
+      console.error('Failed to start native scan:', error);
       throw error;
     }
   }
 
+  private async startDemoScan(callback: (devices: BluetoothDeviceInfo[]) => void): Promise<void> {
+    console.log('Starting demo scan...');
+    
+    // Simulate discovering devices gradually
+    const devices: BluetoothDeviceInfo[] = [];
+    
+    for (let i = 0; i < this.mockDevices.length; i++) {
+      setTimeout(() => {
+        devices.push(this.mockDevices[i]);
+        callback([...devices]);
+      }, (i + 1) * 1000);
+    }
+  }
+
   async stopScan(): Promise<void> {
-    try {
-      await BleClient.stopLEScan();
-      console.log('Bluetooth scan stopped');
-    } catch (error) {
-      console.error('Failed to stop scan:', error);
+    if (this.isNativeEnvironment) {
+      try {
+        await BleClient.stopLEScan();
+        console.log('Native Bluetooth scan stopped');
+      } catch (error) {
+        console.error('Failed to stop native scan:', error);
+      }
+    } else {
+      console.log('Demo scan stopped');
     }
   }
 
   async connectToDevice(deviceId: string): Promise<BluetoothDeviceInfo> {
+    if (this.isNativeEnvironment) {
+      return await this.connectToNativeDevice(deviceId);
+    } else {
+      return await this.connectToDemoDevice(deviceId);
+    }
+  }
+
+  private async connectToNativeDevice(deviceId: string): Promise<BluetoothDeviceInfo> {
     try {
       await BleClient.connect(deviceId);
       this.connectedDevice = { deviceId } as BleDevice;
       
-      console.log('Connected to device:', deviceId);
-      
-      // Start RSSI monitoring
+      console.log('Connected to native device:', deviceId);
       this.startRSSIMonitoring(deviceId);
       
       return {
         deviceId,
         name: 'Connected Device',
-        rssi: -50 // Initial value
+        rssi: -50
       };
     } catch (error) {
-      console.error('Failed to connect to device:', error);
+      console.error('Failed to connect to native device:', error);
       throw error;
     }
   }
 
+  private async connectToDemoDevice(deviceId: string): Promise<BluetoothDeviceInfo> {
+    // Simulate connection delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const device = this.mockDevices.find(d => d.deviceId === deviceId);
+    if (!device) {
+      throw new Error('Demo device not found');
+    }
+
+    this.connectedDevice = { deviceId } as BleDevice;
+    console.log('Connected to demo device:', device.name);
+    this.startRSSIMonitoring(deviceId);
+    
+    return device;
+  }
+
   async disconnect(): Promise<void> {
     if (this.connectedDevice) {
-      try {
-        await BleClient.disconnect(this.connectedDevice.deviceId);
-        this.connectedDevice = null;
-        this.stopRSSIMonitoring();
-        console.log('Disconnected from device');
-      } catch (error) {
-        console.error('Failed to disconnect:', error);
-        throw error;
+      if (this.isNativeEnvironment) {
+        try {
+          await BleClient.disconnect(this.connectedDevice.deviceId);
+          console.log('Disconnected from native device');
+        } catch (error) {
+          console.error('Failed to disconnect from native device:', error);
+          throw error;
+        }
+      } else {
+        console.log('Disconnected from demo device');
       }
+      
+      this.connectedDevice = null;
+      this.stopRSSIMonitoring();
     }
   }
 
   private startRSSIMonitoring(deviceId: string): void {
     this.rssiInterval = setInterval(async () => {
       try {
-        // Note: RSSI reading might not be available on all platforms
-        // This is a simulation for now, but on actual devices this would read real RSSI
-        const simulatedRSSI = -30 + Math.random() * -60; // -30 to -90
+        let rssi: number;
+        
+        if (this.isNativeEnvironment) {
+          // On native platforms, this would read actual RSSI
+          // For now, simulate varying signal strength
+          rssi = -30 + Math.random() * -60; // -30 to -90
+        } else {
+          // Demo mode - simulate realistic RSSI changes
+          rssi = -40 + Math.sin(Date.now() / 2000) * 20 + Math.random() * 10;
+        }
         
         if (this.rssiCallback) {
-          this.rssiCallback(simulatedRSSI);
+          this.rssiCallback(rssi);
         }
       } catch (error) {
         console.error('Failed to read RSSI:', error);
@@ -154,12 +233,17 @@ export class BluetoothService {
     return this.connectedDevice;
   }
 
-  // Volume control would need to be implemented based on the specific audio protocol
-  // Most Bluetooth speakers use A2DP which doesn't allow direct volume control from web/hybrid apps
-  // This would typically require platform-specific native code
+  isNative(): boolean {
+    return this.isNativeEnvironment;
+  }
+
   async setVolume(volume: number): Promise<void> {
-    console.log(`Setting volume to ${volume} (Note: Actual volume control requires native implementation)`);
-    // Implementation would depend on the specific device's protocol
+    if (this.isNativeEnvironment) {
+      console.log(`Setting native volume to ${volume}`);
+      // Native implementation would go here
+    } else {
+      console.log(`Demo: Setting volume to ${volume}`);
+    }
   }
 }
 
