@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Bluetooth, Play, Pause, Target, Scan, Smartphone } from 'lucide-react';
+import { Bluetooth, Play, Pause, Target, Scan, Smartphone, Speaker } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useBluetoothNative } from '@/hooks/useBluetoothNative';
 import { BluetoothDeviceInfo } from '@/services/bluetoothService';
@@ -55,7 +55,7 @@ const Index = () => {
     if (!isAutoMode) {
       toast({
         title: "מצב אוטומטי הופעל",
-        description: "הווליום יתכוונן אוטומטיטט לפי המרחק",
+        description: "הווליום י Coupeונן אוטומטיטט לפי המרחק",
       });
     }
   };
@@ -67,14 +67,10 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-100 p-4">
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header with new title and icon */}
+        {/* Header with speaker icon */}
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <img 
-              src="/lovable-uploads/b03b82aa-bd9b-45c7-96c3-0a73ba9e2e9c.png" 
-              alt="Asi Archery DJ Logo" 
-              className="w-12 h-12 rounded-lg shadow-lg"
-            />
+            <Speaker className="w-12 h-12 text-purple-600 bg-white rounded-lg shadow-lg p-2" />
             <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent">
               Asi Archery DJ
             </h1>
