@@ -1,0 +1,62 @@
+
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BluetoothDeviceInfo } from '@/services/bluetoothService';
+
+interface StatusInfoProps {
+  targetDistance: string;
+  minVolume: number[];
+  maxVolume: number[];
+  isAutoMode: boolean;
+  isConnected: boolean;
+  connectedDevice: BluetoothDeviceInfo | null;
+  calculateVolume: (rssi: number) => number;
+  rssi: number;
+}
+
+export const StatusInfo: React.FC<StatusInfoProps> = ({
+  targetDistance,
+  minVolume,
+  maxVolume,
+  isAutoMode,
+  isConnected,
+  connectedDevice,
+  calculateVolume,
+  rssi
+}) => {
+  return (
+    <Card className="shadow-lg border-2 border-gray-200">
+      <CardHeader>
+        <CardTitle>מידע נוסף</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="text-gray-600">מרחק מוגדר:</span>
+            <span className="font-medium mr-2">{targetDistance}מ'</span>
+          </div>
+          <div>
+            <span className="text-gray-600">ווליום מחושב:</span>
+            <span className="font-medium mr-2">{calculateVolume(rssi)}</span>
+          </div>
+          <div>
+            <span className="text-gray-600">טווח ווליום:</span>
+            <span className="font-medium mr-2">{minVolume[0]}-{maxVolume[0]}</span>
+          </div>
+          <div>
+            <span className="text-gray-600">מצב:</span>
+            <span className="font-medium mr-2">
+              {isAutoMode ? 'אוטומטי' : 'ידני'}
+            </span>
+          </div>
+          <div className="col-span-2">
+            <span className="text-gray-600">סטטוס חיבור:</span>
+            <span className={`font-medium mr-2 ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
+              {isConnected ? `מחובר ל-${connectedDevice?.name}` : 'לא מחובר'}
+            </span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
