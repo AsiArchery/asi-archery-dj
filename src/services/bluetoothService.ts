@@ -1,5 +1,5 @@
-
 import { BleClient } from '@capacitor-community/bluetooth-le';
+import { permissionsService } from './permissionsService';
 
 export interface BluetoothDeviceInfo {
   deviceId: string;
@@ -18,12 +18,32 @@ export class BluetoothService {
 
   async initialize(): Promise<void> {
     try {
+      // Check permissions first
+      const hasPermissions = await permissionsService.checkBluetoothPermissions();
+      if (!hasPermissions) {
+        throw new Error('PERMISSIONS_REQUIRED');
+      }
+
       await BleClient.initialize();
       this.isInitialized = true;
       console.log('Bluetooth initialized successfully');
     } catch (error) {
       console.error('Failed to initialize Bluetooth:', error);
-      throw new Error('Bluetooth initialization failed. Please ensure Bluetooth is enabled on your device.');
+      
+      if (error instanceof Error && error.message === 'PERMISSIONS_REQUIRED') {
+        throw new Error('נדרשות הרשאות בלוטות'. אנא אשר את ההרשאות בהגדרות המכשיר.');
+      }
+      
+      throw new Error('אתחול בלוטות' נכשל. אנא ודא שהבלוטות' מופעל במכשיר.');
+    }
+  }
+
+  async requestPermissions(): Promise<boolean> {
+    try {
+      return await permissionsService.requestBluetoothPermissions();
+    } catch (error) {
+      console.error('Permission request failed:', error);
+      return false;
     }
   }
 
@@ -37,7 +57,7 @@ export class BluetoothService {
       console.log('Connected to system audio');
     } catch (error) {
       console.error('Failed to connect to system audio:', error);
-      throw new Error('Failed to connect to system audio. Please ensure a Bluetooth speaker is connected via system settings.');
+      throw new Error('חיבור לשמע המערכת נכשל. אנא ודא שרמקול בלוטות' מחובר דרך הגדרות המערכת.');
     }
   }
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useBluetoothNative } from '@/hooks/useBluetoothNative';
@@ -7,6 +6,7 @@ import { BluetoothConnection } from '@/components/BluetoothConnection';
 import { SignalDisplay } from '@/components/SignalDisplay';
 import { ControlPanel } from '@/components/ControlPanel';
 import { StatusInfo } from '@/components/StatusInfo';
+import { PermissionsDialog } from '@/components/PermissionsDialog';
 
 const Index = () => {
   const [isAutoMode, setIsAutoMode] = useState(false);
@@ -22,9 +22,12 @@ const Index = () => {
     isConnected,
     connectedDevice,
     rssi,
+    showPermissionsDialog,
     connectToSystemAudio,
     disconnect,
-    setVolume
+    setVolume,
+    handlePermissionsRequest,
+    dismissPermissionsDialog
   } = useBluetoothNative();
 
   // Fixed volume calculation: Lower RSSI (farther) = Higher volume
@@ -52,8 +55,8 @@ const Index = () => {
     setIsAutoMode(!isAutoMode);
     if (!isAutoMode) {
       toast({
-        title: "Auto Mode Enabled",
-        description: "Volume will adjust automatically based on distance",
+        title: "מצב אוטומטי הופעל",
+        description: "עוצמת הקול תותאם אוטומטית בהתאם למרחק",
       });
     }
   };
@@ -106,6 +109,12 @@ const Index = () => {
           connectedDevice={connectedDevice}
           calculateVolume={calculateVolume}
           rssi={rssi}
+        />
+
+        <PermissionsDialog
+          isVisible={showPermissionsDialog}
+          onRequestPermissions={handlePermissionsRequest}
+          onDismiss={dismissPermissionsDialog}
         />
       </div>
     </div>

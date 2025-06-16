@@ -18,6 +18,24 @@ const config: CapacitorConfig = {
         noDeviceFound: "No devices found"
       }
     }
+  },
+  android: {
+    permissions: [
+      'android.permission.BLUETOOTH',
+      'android.permission.BLUETOOTH_ADMIN',
+      'android.permission.ACCESS_COARSE_LOCATION',
+      'android.permission.ACCESS_FINE_LOCATION',
+      'android.permission.BLUETOOTH_SCAN',
+      'android.permission.BLUETOOTH_CONNECT',
+      'android.permission.MODIFY_AUDIO_SETTINGS'
+    ]
+  },
+  ios: {
+    plist: {
+      NSBluetoothAlwaysUsageDescription: 'This app uses Bluetooth to connect to speakers and control volume',
+      NSBluetoothPeripheralUsageDescription: 'This app uses Bluetooth to connect to speakers and control volume',
+      NSLocationWhenInUseUsageDescription: 'Location access is required for Bluetooth functionality'
+    }
   }
 };
 
