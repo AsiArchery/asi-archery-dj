@@ -1,17 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Bluetooth, Play, Pause, Target, Scan, Smartphone } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useBluetoothNative } from '@/hooks/useBluetoothNative';
 import { BluetoothDeviceInfo } from '@/services/bluetoothService';
+import { ColorfulProgressBar } from '@/components/ColorfulProgressBar';
+import { VolumeSlider } from '@/components/VolumeSlider';
 
 const Index = () => {
   const [isAutoMode, setIsAutoMode] = useState(false);
@@ -35,20 +34,18 @@ const Index = () => {
     setVolume
   } = useBluetoothNative();
 
-  // Calculate normalized RSSI and volume
   const calculateVolume = (rssiValue: number) => {
     const normalized = Math.max(0, Math.min(1, (rssiValue + 100) / 70));
     const volume = minVolume[0] + normalized * (maxVolume[0] - minVolume[0]);
     return Math.round(volume);
   };
 
-  // Auto volume control based on RSSI
   useEffect(() => {
     if (isConnected && isAutoMode) {
       const newVolume = calculateVolume(rssi);
       if (newVolume !== currentVolume) {
         setCurrentVolume(newVolume);
-        setVolume(newVolume); // Send to Bluetooth device
+        setVolume(newVolume);
       }
     }
   }, [rssi, isConnected, isAutoMode, minVolume, maxVolume, currentVolume]);
@@ -63,22 +60,25 @@ const Index = () => {
     }
   };
 
-  // Convert RSSI to signal strength percentage
   const getSignalStrength = (rssi: number) => {
     return Math.max(0, Math.min(100, ((rssi + 100) / 70) * 100));
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-blue-100 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-100 p-4">
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
+        {/* Header with new title and icon */}
         <div className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Target className="w-8 h-8 text-amber-600" />
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
-              בקרת ווליום לקשתים
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <img 
+              src="/lovable-uploads/b03b82aa-bd9b-45c7-96c3-0a73ba9e2e9c.png" 
+              alt="Asi Archery DJ Logo" 
+              className="w-12 h-12 rounded-lg shadow-lg"
+            />
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent">
+              Asi Archery DJ
             </h1>
-            <Smartphone className="w-6 h-6 text-green-600" />
+            <Smartphone className="w-6 h-6 text-purple-600" />
           </div>
           <p className="text-gray-600">שליטה אוטומטית על עוצמת הקול לפי המרחק מהמטרה</p>
           <div className="text-sm text-green-600 font-medium">
@@ -87,10 +87,10 @@ const Index = () => {
         </div>
 
         {/* Bluetooth Connection */}
-        <Card className="shadow-lg border-2 border-blue-200">
+        <Card className="shadow-lg border-2 border-purple-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Bluetooth className="w-5 h-5 text-blue-600" />
+              <Bluetooth className="w-5 h-5 text-purple-600" />
               חיבור Bluetooth נטיבי
             </CardTitle>
           </CardHeader>
@@ -157,7 +157,7 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        {/* Signal Strength and Volume Display */}
+        {/* Signal Strength and Volume Display with Colorful Progress */}
         <div className="grid md:grid-cols-2 gap-6">
           <Card className="shadow-lg border-2 border-green-200">
             <CardHeader>
@@ -175,9 +175,10 @@ const Index = () => {
                   {isConnected ? "נתונים אמיתיים" : "מצב דמו"}
                 </div>
               </div>
-              <Progress 
+              <ColorfulProgressBar 
                 value={getSignalStrength(rssi)} 
-                className="h-4"
+                type="rssi"
+                className="h-6"
               />
               <div className="flex justify-between text-xs text-gray-500">
                 <span>רחוק</span>
@@ -202,9 +203,10 @@ const Index = () => {
                   {isConnected ? "נשלח לרמקול" : "מחושב"}
                 </div>
               </div>
-              <Progress 
+              <ColorfulProgressBar 
                 value={(currentVolume / maxVolume[0]) * 100} 
-                className="h-4"
+                type="volume"
+                className="h-6"
               />
               <div className="flex justify-between text-xs text-gray-500">
                 <span>שקט</span>
@@ -215,13 +217,13 @@ const Index = () => {
         </div>
 
         {/* Controls */}
-        <Card className="shadow-lg border-2 border-blue-200">
+        <Card className="shadow-lg border-2 border-purple-200">
           <CardHeader>
             <CardTitle>הגדרות בקרה</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Auto Mode Toggle */}
-            <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg">
               <div className="flex items-center gap-3">
                 {isAutoMode ? (
                   <Play className="w-5 h-5 text-green-600" />
@@ -264,41 +266,38 @@ const Index = () => {
 
             <Separator />
 
-            {/* Volume Controls */}
+            {/* Volume Controls with Colorful Sliders */}
             <div className="space-y-6">
               <div className="space-y-2">
                 <Label>ווליום התחלתי: {initialVolume[0]}</Label>
-                <Slider
+                <VolumeSlider
                   value={initialVolume}
                   onValueChange={setInitialVolume}
                   min={1}
                   max={10}
                   step={1}
-                  className="w-full"
                 />
               </div>
 
               <div className="space-y-2">
                 <Label>ווליום מינימום: {minVolume[0]}</Label>
-                <Slider
+                <VolumeSlider
                   value={minVolume}
                   onValueChange={setMinVolume}
                   min={1}
                   max={10}
                   step={1}
-                  className="w-full"
                 />
               </div>
 
               <div className="space-y-2">
                 <Label>ווליום מקסימום: {maxVolume[0]}</Label>
-                <Slider
+                <VolumeSlider
                   value={maxVolume}
                   onValueChange={setMaxVolume}
                   min={1}
                   max={10}
                   step={1}
-                  className="w-full"
                 />
               </div>
             </div>
@@ -337,22 +336,6 @@ const Index = () => {
                 </span>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Instructions for Mobile */}
-        <Card className="shadow-lg border-2 border-amber-200 bg-amber-50">
-          <CardHeader>
-            <CardTitle className="text-amber-800">הוראות להפעלה על מובייל</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm space-y-2">
-            <p>1. ייצא את הפרויקט ל-GitHub דרך הכפתור "Export to Github"</p>
-            <p>2. הורד את הפרויקט מ-GitHub למחשב שלך</p>
-            <p>3. הרץ: <code className="bg-gray-200 px-1 rounded">npm install</code></p>
-            <p>4. הוסף פלטפורמה: <code className="bg-gray-200 px-1 rounded">npx cap add android</code> או <code className="bg-gray-200 px-1 rounded">npx cap add ios</code></p>
-            <p>5. בנה את הפרויקט: <code className="bg-gray-200 px-1 rounded">npm run build</code></p>
-            <p>6. סנכרן: <code className="bg-gray-200 px-1 rounded">npx cap sync</code></p>
-            <p>7. הרץ: <code className="bg-gray-200 px-1 rounded">npx cap run android</code> או <code className="bg-gray-200 px-1 rounded">npx cap run ios</code></p>
           </CardContent>
         </Card>
       </div>
