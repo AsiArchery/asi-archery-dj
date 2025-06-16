@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { bluetoothService, BluetoothDeviceInfo } from '../services/bluetoothService';
 import { useToast } from './use-toast';
@@ -8,10 +9,14 @@ export const useBluetoothNative = () => {
   const [connectedDevice, setConnectedDevice] = useState<BluetoothDeviceInfo | null>(null);
   const [rssi, setRssi] = useState(-60);
   const [showPermissionsDialog, setShowPermissionsDialog] = useState(false);
+  const [initializationAttempted, setInitializationAttempted] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    initializeBluetooth();
+    if (!initializationAttempted) {
+      initializeBluetooth();
+      setInitializationAttempted(true);
+    }
     
     return () => {
       if (isConnected) {
@@ -22,6 +27,7 @@ export const useBluetoothNative = () => {
 
   const initializeBluetooth = async () => {
     try {
+      console.log('Attempting to initialize Bluetooth...');
       await bluetoothService.initialize();
       setIsInitialized(true);
       
@@ -30,35 +36,51 @@ export const useBluetoothNative = () => {
         setRssi(newRssi);
       });
       
+      console.log('Bluetooth initialized successfully');
       toast({
         title: "מערכת מוכנה!",
-        description: "המערכת מוכנה להתחבר לרמקול בלוטות'",
+        description: "המערכת מוכנה להתחבר לרמקול בלוטות",
       });
     } catch (error) {
       console.error('Bluetooth initialization failed:', error);
       
-      if (error instanceof Error && error.message.includes('הרשאות')) {
-        setShowPermissionsDialog(true);
-      } else {
-        toast({
-          title: "שגיאת אתחול",
-          description: "נכשל באתחול בלוטות'. אנא ודא שהבלוטות' מופעל.",
-          variant: "destructive",
-        });
+      if (error instanceof Error) {
+        if (error.message.includes('הרשאות') || error.message.includes('הפעיל')) {
+          setShowPermissionsDialog(true);
+        } else {
+          toast({
+            title: "שגיאת אתחול",
+            description: error.message || "נכשל באתחול בלוטות. אנא ודא שהבלוטות מופעל.",
+            variant: "destructive",
+          });
+        }
       }
     }
   };
 
   const handlePermissionsRequest = async () => {
-    const granted = await bluetoothService.requestPermissions();
-    setShowPermissionsDialog(false);
-    
-    if (granted) {
-      initializeBluetooth();
-    } else {
+    try {
+      console.log('Handling permissions request...');
+      const granted = await bluetoothService.requestPermissions();
+      setShowPermissionsDialog(false);
+      
+      if (granted) {
+        console.log('Permissions granted, re-initializing...');
+        await initializeBluetooth();
+      } else {
+        console.log('Permissions denied');
+        toast({
+          title: "הרשאות נדרשות",
+          description: "אנא אשר הרשאות בלוטות בהגדרות המכשיר ונסה שוב",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Permission handling failed:', error);
+      setShowPermissionsDialog(false);
       toast({
-        title: "הרשאות נדרשות",
-        description: "אנא אשר הרשאות בלוטות' בהגדרות המכשיר",
+        title: "שגיאה בבקשת הרשאות",
+        description: "נכשל בבקשת הרשאות. אנא פתח את הגדרות המכשיר ואשר הרשאות בלוטות ידנית.",
         variant: "destructive",
       });
     }
@@ -68,7 +90,7 @@ export const useBluetoothNative = () => {
     if (!isInitialized) {
       toast({
         title: "המערכת לא מוכנה",
-        description: "אנא המתן לאתחול המערכת",
+        description: "אנא המתן לאתחול המערכת או בקש הרשאות",
         variant: "destructive",
       });
       return;
@@ -85,13 +107,13 @@ export const useBluetoothNative = () => {
       
       toast({
         title: "התחבר בהצלחה!",
-        description: "התחבר לרמקול בלוטות'",
+        description: "התחבר לרמקול בלוטות",
       });
     } catch (error) {
       console.error('Connection failed:', error);
       toast({
         title: "שגיאת חיבור",
-        description: "אנא חבר רמקול בלוטות' דרך הגדרות המערכת תחילה",
+        description: "אנא חבר רמקול בלוטות דרך הגדרות המערכת תחילה",
         variant: "destructive",
       });
     }
@@ -126,6 +148,13 @@ export const useBluetoothNative = () => {
     }
   };
 
+  const retryInitialization = () => {
+    console.log('Retrying Bluetooth initialization...');
+    setInitializationAttempted(false);
+    setIsInitialized(false);
+    initializeBluetooth();
+  };
+
   return {
     isInitialized,
     isConnected,
@@ -136,6 +165,7 @@ export const useBluetoothNative = () => {
     disconnect,
     setVolume,
     handlePermissionsRequest,
+    retryInitialization,
     dismissPermissionsDialog: () => setShowPermissionsDialog(false)
   };
 };
