@@ -7,21 +7,33 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Bluetooth, Play, Pause, Target } from 'lucide-react';
+import { Bluetooth, Play, Pause, Target, Scan, Smartphone } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import { useBluetoothNative } from '@/hooks/useBluetoothNative';
+import { BluetoothDeviceInfo } from '@/services/bluetoothService';
 
 const Index = () => {
-  const [isConnected, setIsConnected] = useState(false);
   const [isAutoMode, setIsAutoMode] = useState(false);
-  const [rssi, setRssi] = useState(-60);
   const [currentVolume, setCurrentVolume] = useState(5);
   const [targetDistance, setTargetDistance] = useState('50');
   const [initialVolume, setInitialVolume] = useState([3]);
   const [minVolume, setMinVolume] = useState([1]);
   const [maxVolume, setMaxVolume] = useState([10]);
-  const [deviceName, setDeviceName] = useState('');
   const { toast } = useToast();
+
+  const {
+    isInitialized,
+    isConnected,
+    isScanning,
+    discoveredDevices,
+    connectedDevice,
+    rssi,
+    startScan,
+    connectToDevice,
+    disconnect,
+    setVolume
+  } = useBluetoothNative();
 
   // Calculate normalized RSSI and volume
   const calculateVolume = (rssiValue: number) => {
@@ -30,48 +42,16 @@ const Index = () => {
     return Math.round(volume);
   };
 
-  // Simulate RSSI changes (in real app, this would come from Bluetooth API)
+  // Auto volume control based on RSSI
   useEffect(() => {
     if (isConnected && isAutoMode) {
-      const interval = setInterval(() => {
-        const newRssi = -30 + Math.random() * -60; // Random RSSI between -30 and -90
-        setRssi(newRssi);
-        const newVolume = calculateVolume(newRssi);
+      const newVolume = calculateVolume(rssi);
+      if (newVolume !== currentVolume) {
         setCurrentVolume(newVolume);
-      }, 1000);
-      return () => clearInterval(interval);
+        setVolume(newVolume); // Send to Bluetooth device
+      }
     }
-  }, [isConnected, isAutoMode, minVolume, maxVolume]);
-
-  const handleBluetoothConnect = async () => {
-    try {
-      // In a real app, this would use the Web Bluetooth API
-      // For demo purposes, we'll simulate the connection
-      setIsConnected(true);
-      setDeviceName('קול בלוטוס');
-      setRssi(-45);
-      toast({
-        title: "התחבר בהצלחה!",
-        description: "הרמקול מחובר ומוכן לשימוש",
-      });
-    } catch (error) {
-      toast({
-        title: "שגיאת חיבור",
-        description: "לא הצלחנו להתחבר לרמקול",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDisconnect = () => {
-    setIsConnected(false);
-    setDeviceName('');
-    setIsAutoMode(false);
-    toast({
-      title: "החיבור נותק",
-      description: "הרמקול נותק מהאפליקציה",
-    });
-  };
+  }, [rssi, isConnected, isAutoMode, minVolume, maxVolume, currentVolume]);
 
   const toggleAutoMode = () => {
     setIsAutoMode(!isAutoMode);
@@ -98,8 +78,12 @@ const Index = () => {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
               בקרת ווליום לקשתים
             </h1>
+            <Smartphone className="w-6 h-6 text-green-600" />
           </div>
           <p className="text-gray-600">שליטה אוטומטית על עוצמת הקול לפי המרחק מהמטרה</p>
+          <div className="text-sm text-green-600 font-medium">
+            {isInitialized ? "✓ מצב נטיבי - Bluetooth אמיתי" : "מפעיל מצב נטיבי..."}
+          </div>
         </div>
 
         {/* Bluetooth Connection */}
@@ -107,25 +91,69 @@ const Index = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Bluetooth className="w-5 h-5 text-blue-600" />
-              חיבור בלוטוס
+              חיבור Bluetooth נטיבי
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">סטטוס חיבור</p>
-                <p className="font-medium">
-                  {isConnected ? `מחובר ל-${deviceName}` : 'לא מחובר'}
-                </p>
+            {!isConnected && (
+              <>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">סטטוס</p>
+                    <p className="font-medium">
+                      {isScanning ? 'סורק...' : 'לא מחובר'}
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={startScan}
+                    disabled={!isInitialized || isScanning}
+                    className="min-w-[120px]"
+                  >
+                    <Scan className="w-4 h-4 mr-2" />
+                    {isScanning ? 'סורק...' : 'סרוק התקנים'}
+                  </Button>
+                </div>
+
+                {/* Discovered Devices */}
+                {discoveredDevices.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-700">התקנים שנמצאו:</p>
+                    <div className="max-h-40 overflow-y-auto space-y-2">
+                      {discoveredDevices.map((device: BluetoothDeviceInfo) => (
+                        <div key={device.deviceId} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                          <div>
+                            <p className="font-medium">{device.name}</p>
+                            <p className="text-xs text-gray-500">RSSI: {device.rssi} dBm</p>
+                          </div>
+                          <Button 
+                            size="sm"
+                            onClick={() => connectToDevice(device.deviceId, device.name)}
+                          >
+                            התחבר
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {isConnected && connectedDevice && (
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">מחובר ל</p>
+                  <p className="font-medium">{connectedDevice.name}</p>
+                </div>
+                <Button 
+                  onClick={disconnect}
+                  variant="destructive"
+                  className="min-w-[120px]"
+                >
+                  נתק
+                </Button>
               </div>
-              <Button 
-                onClick={isConnected ? handleDisconnect : handleBluetoothConnect}
-                variant={isConnected ? "destructive" : "default"}
-                className="min-w-[120px]"
-              >
-                {isConnected ? 'נתק' : 'התחבר לרמקול'}
-              </Button>
-            </div>
+            )}
           </CardContent>
         </Card>
 
@@ -133,7 +161,7 @@ const Index = () => {
         <div className="grid md:grid-cols-2 gap-6">
           <Card className="shadow-lg border-2 border-green-200">
             <CardHeader>
-              <CardTitle className="text-green-700">עוצמת קליטה</CardTitle>
+              <CardTitle className="text-green-700">עוצמת קליטה (RSSI)</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-center">
@@ -142,6 +170,9 @@ const Index = () => {
                 </div>
                 <div className="text-sm text-gray-600">
                   RSSI: {rssi} dBm
+                </div>
+                <div className="text-xs text-blue-600 mt-1">
+                  {isConnected ? "נתונים אמיתיים" : "מצב דמו"}
                 </div>
               </div>
               <Progress 
@@ -166,6 +197,9 @@ const Index = () => {
                 </div>
                 <div className="text-sm text-gray-600">
                   מתוך {maxVolume[0]}
+                </div>
+                <div className="text-xs text-blue-600 mt-1">
+                  {isConnected ? "נשלח לרמקול" : "מחושב"}
                 </div>
               </div>
               <Progress 
@@ -296,7 +330,29 @@ const Index = () => {
                   {isAutoMode ? 'אוטומטי' : 'ידני'}
                 </span>
               </div>
+              <div className="col-span-2">
+                <span className="text-gray-600">סטטוס חיבור:</span>
+                <span className={`font-medium mr-2 ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
+                  {isConnected ? `מחובר ל-${connectedDevice?.name}` : 'לא מחובר'}
+                </span>
+              </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Instructions for Mobile */}
+        <Card className="shadow-lg border-2 border-amber-200 bg-amber-50">
+          <CardHeader>
+            <CardTitle className="text-amber-800">הוראות להפעלה על מובייל</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm space-y-2">
+            <p>1. ייצא את הפרויקט ל-GitHub דרך הכפתור "Export to Github"</p>
+            <p>2. הורד את הפרויקט מ-GitHub למחשב שלך</p>
+            <p>3. הרץ: <code className="bg-gray-200 px-1 rounded">npm install</code></p>
+            <p>4. הוסף פלטפורמה: <code className="bg-gray-200 px-1 rounded">npx cap add android</code> או <code className="bg-gray-200 px-1 rounded">npx cap add ios</code></p>
+            <p>5. בנה את הפרויקט: <code className="bg-gray-200 px-1 rounded">npm run build</code></p>
+            <p>6. סנכרן: <code className="bg-gray-200 px-1 rounded">npx cap sync</code></p>
+            <p>7. הרץ: <code className="bg-gray-200 px-1 rounded">npx cap run android</code> או <code className="bg-gray-200 px-1 rounded">npx cap run ios</code></p>
           </CardContent>
         </Card>
       </div>
