@@ -1,8 +1,6 @@
+
 import { BleClient } from '@capacitor-community/bluetooth-le';
 import { Capacitor } from '@capacitor/core';
-
-// Define permission types since they're not exported from @capacitor/core
-type PermissionType = 'camera' | 'photos' | 'geolocation' | 'notifications' | 'clipboard-read' | 'clipboard-write' | 'microphone';
 
 export class PermissionsService {
   async checkBluetoothPermissions(): Promise<boolean> {
@@ -14,7 +12,6 @@ export class PermissionsService {
 
       console.log('Checking Bluetooth permissions...');
       
-      // Check if Bluetooth is available and enabled
       const isAvailable = await BleClient.isEnabled();
       console.log('Bluetooth is available:', isAvailable);
       
@@ -35,12 +32,10 @@ export class PermissionsService {
         return true;
       }
 
-      // Initialize BleClient first
       console.log('Initializing BLE client...');
       await BleClient.initialize();
       console.log('BleClient initialized successfully');
       
-      // Check if Bluetooth is enabled, request if not
       const isEnabled = await BleClient.isEnabled();
       console.log('Bluetooth enabled status:', isEnabled);
       
@@ -55,7 +50,6 @@ export class PermissionsService {
         }
       }
       
-      // Final check after potential enable request
       const finalEnabled = await BleClient.isEnabled();
       console.log('Final Bluetooth enabled status:', finalEnabled);
       
@@ -71,9 +65,7 @@ export class PermissionsService {
 
   openDeviceSettings(): void {
     if (Capacitor.isNativePlatform()) {
-      // On mobile, show instructions for manual settings
       console.log('User needs to open device settings manually');
-      // Could potentially use App plugin to open settings in future
     } else {
       console.log('Running on web, no settings to open');
     }

@@ -1,5 +1,7 @@
+
 import { useState, useEffect } from 'react';
-import { bluetoothService, BluetoothDeviceInfo } from '../services/bluetoothService';
+import { bluetoothService } from '../services/bluetoothService';
+import { BluetoothDeviceInfo } from '../types/bluetooth';
 import { useToast } from './use-toast';
 
 export const useBluetoothNative = () => {
@@ -30,7 +32,6 @@ export const useBluetoothNative = () => {
       await bluetoothService.initialize();
       setIsInitialized(true);
       
-      // Set up RSSI callback
       bluetoothService.setRSSICallback((newRssi: number) => {
         setRssi(newRssi);
       });
@@ -111,7 +112,6 @@ export const useBluetoothNative = () => {
           rssi: -50
         });
       } else {
-        // Simulated connection for testing
         setConnectedDevice({
           deviceId: 'simulated-device',
           name: 'מכשיר שמע (מדומה)',
