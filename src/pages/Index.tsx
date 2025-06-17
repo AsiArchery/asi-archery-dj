@@ -67,8 +67,19 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-100 p-4">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div 
+      className="min-h-screen p-4 relative"
+      style={{
+        backgroundImage: `url('/lovable-uploads/185c1280-34ab-4f1c-8252-53c6f706c6c3.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Overlay for better readability */}
+      <div className="absolute inset-0 bg-white/80 backdrop-blur-sm"></div>
+      
+      <div className="relative z-10 max-w-4xl mx-auto space-y-6">
         <Header isInitialized={isInitialized} />
 
         <BluetoothConnection
