@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Settings, Smartphone } from 'lucide-react';
+import { AlertTriangle, Settings, Smartphone, MapPin } from 'lucide-react';
 
 interface PermissionsDialogProps {
   isVisible: boolean;
@@ -34,17 +34,23 @@ export const PermissionsDialog: React.FC<PermissionsDialogProps> = ({
             
             <div className="bg-blue-50 p-3 rounded-lg space-y-2">
               <div className="flex items-center gap-2 text-right">
-                <span>בלוטות' - לחיבור לרמקול</span>
+                <span>בלוטות' - לחיבור לרמקול ובקרת עוצמה</span>
                 <Smartphone className="w-4 h-4 text-blue-600" />
               </div>
               <div className="flex items-center gap-2 text-right">
-                <span>מיקום - נדרש לסריקת בלוטות'</span>
-                <Settings className="w-4 h-4 text-blue-600" />
+                <span>מיקום - נדרש לסריקת מכשירי בלוטות'</span>
+                <MapPin className="w-4 h-4 text-green-600" />
               </div>
             </div>
 
             <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-              <strong>שימו לב:</strong> האפליקציה לא שומרת או משתמשת במידע מיקום אישי
+              <strong>שימו לב:</strong> האפליקציה לא שומרת או משתמשת במידע מיקום אישי.
+              הרשאת המיקום נדרשת על ידי אנדרואיד לסריקת מכשירי בלוטות' בלבד.
+            </div>
+
+            <div className="text-xs text-amber-600 bg-amber-50 p-2 rounded">
+              <strong>הוראות:</strong> לחץ על "אישור הרשאות" ואשר את שתי ההרשאות שיופיעו.
+              אם לא מופיעות ההרשאות, פתח את הגדרות האפליקציה ידנית.
             </div>
           </div>
 

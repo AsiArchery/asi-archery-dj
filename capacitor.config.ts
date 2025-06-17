@@ -17,6 +17,9 @@ const config: CapacitorConfig = {
         availableDevices: "Available Devices",
         noDeviceFound: "No devices found"
       }
+    },
+    Permissions: {
+      location: "This app needs location access to scan for Bluetooth devices"
     }
   },
   android: {
@@ -27,14 +30,17 @@ const config: CapacitorConfig = {
       'android.permission.ACCESS_FINE_LOCATION',
       'android.permission.BLUETOOTH_SCAN',
       'android.permission.BLUETOOTH_CONNECT',
-      'android.permission.MODIFY_AUDIO_SETTINGS'
+      'android.permission.BLUETOOTH_ADVERTISE',
+      'android.permission.MODIFY_AUDIO_SETTINGS',
+      'android.permission.ACCESS_BACKGROUND_LOCATION'
     ]
   },
   ios: {
     plist: {
-      NSBluetoothAlwaysUsageDescription: 'This app uses Bluetooth to connect to speakers and control volume',
+      NSBluetoothAlwaysUsageDescription: 'This app uses Bluetooth to connect to speakers and control volume based on distance',
       NSBluetoothPeripheralUsageDescription: 'This app uses Bluetooth to connect to speakers and control volume',
-      NSLocationWhenInUseUsageDescription: 'Location access is required for Bluetooth functionality'
+      NSLocationWhenInUseUsageDescription: 'Location access is required for Bluetooth device scanning functionality',
+      NSLocationAlwaysAndWhenInUseUsageDescription: 'Location access is required for Bluetooth device scanning functionality'
     }
   }
 };

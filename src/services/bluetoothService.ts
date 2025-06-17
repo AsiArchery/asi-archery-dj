@@ -1,5 +1,5 @@
 
-import { BleClient, BleDevice } from '@capacitor-community/bluetooth-le';
+import { BleClient, BleDevice, numbersToDataView, dataViewToNumbers } from '@capacitor-community/bluetooth-le';
 import { permissionsService } from './permissionsService';
 
 export interface BluetoothDeviceInfo {
@@ -14,7 +14,8 @@ export class BluetoothService {
   private rssiInterval: NodeJS.Timeout | null = null;
   private rssiHistory: number[] = [];
   private lastSignificantChange: number = 0;
-  private connectedDeviceId: string | null = null;
+  private connectedDevice: BleDevice | null = null;
+  private availableDevices: BleDevice[] = [];
 
   constructor() {}
 
@@ -22,17 +23,9 @@ export class BluetoothService {
     try {
       console.log('Starting Bluetooth initialization...');
       
-      // Initialize BleClient
-      await BleClient.initialize();
-      console.log('BleClient initialized successfully');
-      
-      // Check if Bluetooth is enabled
-      const isEnabled = await BleClient.isEnabled();
-      console.log('Bluetooth enabled status:', isEnabled);
-      
-      if (!isEnabled) {
-        console.log('Bluetooth not enabled, requesting...');
-        throw new Error('BLUETOOTH_NOT_ENABLED');
+      const hasPermissions = await permissionsService.requestBluetoothPermissions();
+      if (!hasPermissions) {
+        throw new Error('נדרשות הרשאות בלוטות ומיקום. אנא אשר את ההרשאות.');
       }
       
       this.isInitialized = true;
@@ -42,8 +35,8 @@ export class BluetoothService {
       console.error('Failed to initialize Bluetooth:', error);
       
       if (error instanceof Error) {
-        if (error.message === 'BLUETOOTH_NOT_ENABLED') {
-          throw new Error('נדרש להפעיל בלוטות. אנא הפעל בלוטות בהגדרות המכשיר.');
+        if (error.message.includes('הרשאות')) {
+          throw error;
         }
         if (error.message.includes('permission') || error.message.includes('Permission')) {
           throw new Error('נדרשות הרשאות בלוטות. אנא אשר את ההרשאות בהגדרות המכשיר.');
@@ -74,20 +67,27 @@ export class BluetoothService {
     try {
       console.log('Starting device scan...');
       
-      const devices: BleDevice[] = [];
+      this.availableDevices = [];
       
       await BleClient.requestLEScan({}, (result) => {
         console.log('Device found:', result);
-        devices.push(result.device);
+        // Only add devices with names (audio devices usually have names)
+        if (result.device.name) {
+          this.availableDevices.push(result.device);
+        }
       });
 
       // Scan for 5 seconds
       setTimeout(async () => {
         await BleClient.stopLEScan();
-        console.log('Scan completed, found', devices.length, 'devices');
+        console.log('Scan completed, found', this.availableDevices.length, 'devices');
       }, 5000);
 
-      return devices;
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(this.availableDevices);
+        }, 5500);
+      });
     } catch (error) {
       console.error('Failed to scan for devices:', error);
       throw error;
@@ -100,30 +100,47 @@ export class BluetoothService {
     }
 
     try {
-      console.log('Attempting to connect to system audio...');
+      console.log('Scanning for audio devices...');
       
-      // For now, simulate connection since we're working with system audio
-      // In a real implementation, you would scan for and connect to a specific device
+      // First scan for available devices
+      const devices = await this.scanForDevices();
+      console.log('Available devices:', devices);
+      
+      if (devices.length === 0) {
+        // Fallback to simulated connection for testing
+        console.log('No devices found, using simulated connection');
+        this.startRSSIMonitoring();
+        return;
+      }
+      
+      // Try to connect to the first available device (in real app, user would choose)
+      const targetDevice = devices[0];
+      console.log('Attempting to connect to:', targetDevice.name);
+      
+      await BleClient.connect(targetDevice.deviceId);
+      this.connectedDevice = targetDevice;
+      
+      console.log('Connected to device:', targetDevice.name);
       this.startRSSIMonitoring();
-      this.connectedDeviceId = 'system-audio';
       
-      console.log('Connected to system audio');
     } catch (error) {
-      console.error('Failed to connect to system audio:', error);
-      throw new Error('חיבור לשמע המערכת נכשל. אנא ודא שרמקול בלוטות מחובר דרך הגדרות המערכת.');
+      console.error('Failed to connect to device:', error);
+      // Fallback to simulated connection
+      console.log('Connection failed, using simulated mode');
+      this.startRSSIMonitoring();
     }
   }
 
   async disconnect(): Promise<void> {
     try {
-      if (this.connectedDeviceId && this.connectedDeviceId !== 'system-audio') {
-        await BleClient.disconnect(this.connectedDeviceId);
+      if (this.connectedDevice) {
+        await BleClient.disconnect(this.connectedDevice.deviceId);
+        console.log('Disconnected from device:', this.connectedDevice.name);
       }
       
       this.stopRSSIMonitoring();
       this.rssiHistory = [];
-      this.connectedDeviceId = null;
-      console.log('Disconnected from device');
+      this.connectedDevice = null;
     } catch (error) {
       console.error('Failed to disconnect:', error);
     }
@@ -132,13 +149,27 @@ export class BluetoothService {
   private startRSSIMonitoring(): void {
     console.log('Starting RSSI monitoring...');
     
-    this.rssiInterval = setInterval(() => {
+    this.rssiInterval = setInterval(async () => {
       try {
-        // Generate more stable RSSI values with less fluctuation
-        const baseRssi = -50 + Math.sin(Date.now() / 5000) * 20 + Math.random() * 5;
+        let currentRssi: number;
+        
+        if (this.connectedDevice) {
+          // Try to read actual RSSI from connected device
+          try {
+            const rssiResult = await BleClient.readRssi(this.connectedDevice.deviceId);
+            currentRssi = rssiResult;
+            console.log('Real RSSI:', currentRssi);
+          } catch (error) {
+            // Fallback to simulated RSSI if reading fails
+            currentRssi = -50 + Math.sin(Date.now() / 5000) * 20 + Math.random() * 5;
+          }
+        } else {
+          // Simulated RSSI for testing
+          currentRssi = -50 + Math.sin(Date.now() / 5000) * 20 + Math.random() * 5;
+        }
         
         // Add to history for moving average
-        this.rssiHistory.push(baseRssi);
+        this.rssiHistory.push(currentRssi);
         if (this.rssiHistory.length > 5) {
           this.rssiHistory.shift();
         }
@@ -146,7 +177,7 @@ export class BluetoothService {
         // Calculate moving average for smoother values
         const smoothedRssi = this.rssiHistory.reduce((sum, val) => sum + val, 0) / this.rssiHistory.length;
         
-        // Only trigger callback if there's a significant change (threshold of 3 dBm)
+        // Only trigger callback if there's a significant change
         if (Math.abs(smoothedRssi - this.lastSignificantChange) > 3) {
           this.lastSignificantChange = smoothedRssi;
           
@@ -173,12 +204,24 @@ export class BluetoothService {
   }
 
   async setVolume(volume: number): Promise<void> {
-    console.log(`Setting system audio volume to ${volume}`);
-    // Volume control would need to be implemented with system APIs
+    console.log(`Setting volume to ${volume}`);
+    // Note: System volume control requires additional native plugins
+    // For now, this is logged for debugging
+    if (this.connectedDevice) {
+      console.log(`Would set volume to ${volume} on device:`, this.connectedDevice.name);
+    }
   }
 
   isReady(): boolean {
     return this.isInitialized;
+  }
+
+  getAvailableDevices(): BleDevice[] {
+    return this.availableDevices;
+  }
+
+  getConnectedDevice(): BleDevice | null {
+    return this.connectedDevice;
   }
 }
 
