@@ -38,19 +38,19 @@ export const useBluetoothNative = () => {
       
       console.log('Bluetooth initialized successfully');
       toast({
-        title: "מערכת מוכנה!",
-        description: "המערכת מוכנה להתחבר לרמקול בלוטות. ודא שהרמקול במצב זיווג.",
+        title: "System Ready!",
+        description: "System ready to connect to Bluetooth speaker. Make sure speaker is in pairing mode.",
       });
     } catch (error) {
       console.error('Bluetooth initialization failed:', error);
       
       if (error instanceof Error) {
-        if (error.message.includes('הרשאות')) {
+        if (error.message.includes('permissions')) {
           setShowPermissionsDialog(true);
         } else {
           toast({
-            title: "שגיאת אתחול",
-            description: error.message || "נכשל באתחול בלוטות. אנא ודא שהבלוטות מופעל וההרשאות מאושרות.",
+            title: "Initialization Error",
+            description: error.message || "Bluetooth initialization failed. Please ensure Bluetooth is enabled and permissions are granted.",
             variant: "destructive",
           });
         }
@@ -70,8 +70,8 @@ export const useBluetoothNative = () => {
       } else {
         console.log('Permissions denied');
         toast({
-          title: "הרשאות נדרשות",
-          description: "אנא אשר הרשאות בלוטות ומיקום בהגדרות המכשיר ונסה שוב",
+          title: "Permissions Required",
+          description: "Please grant Bluetooth and location permissions in device settings and try again",
           variant: "destructive",
         });
       }
@@ -79,8 +79,8 @@ export const useBluetoothNative = () => {
       console.error('Permission handling failed:', error);
       setShowPermissionsDialog(false);
       toast({
-        title: "שגיאה בבקשת הרשאות",
-        description: "נכשל בבקשת הרשאות. אנא פתח את הגדרות המכשיר ואשר הרשאות בלוטות ומיקום ידנית.",
+        title: "Permission Request Error",
+        description: "Failed to request permissions. Please open device settings and grant Bluetooth and location permissions manually.",
         variant: "destructive",
       });
     }
@@ -89,8 +89,8 @@ export const useBluetoothNative = () => {
   const connectToSystemAudio = async () => {
     if (!isInitialized) {
       toast({
-        title: "המערכת לא מוכנה",
-        description: "אנא המתן לאתחול המערכת או בקש הרשאות",
+        title: "System Not Ready",
+        description: "Please wait for system initialization or request permissions",
         variant: "destructive",
       });
       return;
@@ -98,8 +98,8 @@ export const useBluetoothNative = () => {
 
     try {
       toast({
-        title: "מחפש מכשירים...",
-        description: "סורק אחר רמקולי בלוטות זמינים",
+        title: "Searching for devices...",
+        description: "Scanning for available Bluetooth speakers",
       });
 
       await bluetoothService.connectToSystemAudio();
@@ -108,13 +108,13 @@ export const useBluetoothNative = () => {
       if (connectedDevice) {
         setConnectedDevice({
           deviceId: connectedDevice.deviceId,
-          name: connectedDevice.name || 'מכשיר בלוטות',
+          name: connectedDevice.name || 'Bluetooth Device',
           rssi: -50
         });
       } else {
         setConnectedDevice({
           deviceId: 'simulated-device',
-          name: 'מכשיר שמע (מדומה)',
+          name: 'Audio Device (Simulated)',
           rssi: -50
         });
       }
@@ -122,14 +122,14 @@ export const useBluetoothNative = () => {
       setIsConnected(true);
       
       toast({
-        title: "התחבר בהצלחה!",
-        description: "התחבר לרמקול בלוטות. המערכת תתאים את עוצמת הקול בהתאם למרחק.",
+        title: "Connected Successfully!",
+        description: "Connected to Bluetooth speaker. System will adjust volume based on distance.",
       });
     } catch (error) {
       console.error('Connection failed:', error);
       toast({
-        title: "שגיאת חיבור",
-        description: "לא נמצאו רמקולי בלוטות. ודא שהרמקול במצב זיווג ונסה שוב.",
+        title: "Connection Error",
+        description: "No Bluetooth speakers found. Make sure speaker is in pairing mode and try again.",
         variant: "destructive",
       });
     }
@@ -143,14 +143,14 @@ export const useBluetoothNative = () => {
       setRssi(-60);
       
       toast({
-        title: "התנתק",
-        description: "התנתק ממכשיר השמע",
+        title: "Disconnected",
+        description: "Disconnected from audio device",
       });
     } catch (error) {
       console.error('Disconnect failed:', error);
       toast({
-        title: "שגיאת ניתוק",
-        description: "נכשל בניתוק המכשיר",
+        title: "Disconnect Error",
+        description: "Failed to disconnect device",
         variant: "destructive",
       });
     }

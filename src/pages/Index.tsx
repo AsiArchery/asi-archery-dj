@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useBluetoothNative } from '@/hooks/useBluetoothNative';
@@ -55,8 +56,8 @@ const Index = () => {
     setIsAutoMode(!isAutoMode);
     if (!isAutoMode) {
       toast({
-        title: "מצב אוטומטי הופעל",
-        description: "עוצמת הקול תותאם אוטומטית בהתאם למרחק",
+        title: "Auto Mode Enabled",
+        description: "Volume will automatically adjust based on distance",
       });
     }
   };

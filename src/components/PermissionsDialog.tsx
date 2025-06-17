@@ -23,43 +23,43 @@ export const PermissionsDialog: React.FC<PermissionsDialogProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-left">
             <AlertTriangle className="w-5 h-5 text-amber-600" />
-            נדרשות הרשאות
+            Permissions Required
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 text-right">
+        <CardContent className="space-y-4 text-left">
           <div className="text-sm text-gray-600 space-y-3">
             <p>
-              האפליקציה זקוקה להרשאות הבאות כדי לפעול:
+              The app requires the following permissions to function:
             </p>
             
             <div className="bg-blue-50 p-3 rounded-lg space-y-2">
-              <div className="flex items-center gap-2 text-right">
-                <span>בלוטות' - לחיבור לרמקול ובקרת עוצמה</span>
+              <div className="flex items-center gap-2 text-left">
                 <Smartphone className="w-4 h-4 text-blue-600" />
+                <span>Bluetooth - for speaker connection and volume control</span>
               </div>
-              <div className="flex items-center gap-2 text-right">
-                <span>מיקום - נדרש לסריקת מכשירי בלוטות'</span>
+              <div className="flex items-center gap-2 text-left">
                 <MapPin className="w-4 h-4 text-green-600" />
+                <span>Location - required for Bluetooth device scanning</span>
               </div>
             </div>
 
             <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-              <strong>שימו לב:</strong> האפליקציה לא שומרת או משתמשת במידע מיקום אישי.
-              הרשאת המיקום נדרשת על ידי אנדרואיד לסריקת מכשירי בלוטות' בלבד.
+              <strong>Note:</strong> The app does not store or use personal location data.
+              Location permission is required by Android for Bluetooth device scanning only.
             </div>
 
             <div className="text-xs text-amber-600 bg-amber-50 p-2 rounded">
-              <strong>הוראות:</strong> לחץ על "אישור הרשאות" ואשר את שתי ההרשאות שיופיעו.
-              אם לא מופיעות ההרשאות, פתח את הגדרות האפליקציה ידנית.
+              <strong>Instructions:</strong> Click "Grant Permissions" and approve both permissions that appear.
+              If permissions don't appear, manually open app settings.
             </div>
           </div>
 
           <div className="flex gap-2">
             <Button onClick={onDismiss} variant="outline" className="flex-1">
-              ביטול
+              Cancel
             </Button>
             <Button onClick={onRequestPermissions} className="flex-1">
-              אישור הרשאות
+              Grant Permissions
             </Button>
           </div>
         </CardContent>
