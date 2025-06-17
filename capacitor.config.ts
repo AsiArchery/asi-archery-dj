@@ -17,9 +17,6 @@ const config: CapacitorConfig = {
         availableDevices: "Available Devices",
         noDeviceFound: "No devices found"
       }
-    },
-    Permissions: {
-      location: "This app needs location access to scan for Bluetooth devices"
     }
   },
   android: {
