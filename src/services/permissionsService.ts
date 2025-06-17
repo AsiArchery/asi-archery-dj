@@ -1,6 +1,4 @@
-
 import { BleClient } from '@capacitor-community/bluetooth-le';
-import { PermissionStatus } from '@capacitor/core';
 import { Capacitor } from '@capacitor/core';
 
 // Define permission types since they're not exported from @capacitor/core
